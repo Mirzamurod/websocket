@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+        <title>Document</title>
+    </head>
+    <body>
+        <div class="container">
+            <span class="yashil"></span>
+            <button class="btn btn-primary m-5">Hello World</button>
+            <span class="sariq"> </span>
+            <br>
+            <input type="text" id="name"/>
+            <button class="btn btn-success">Submit</button>
+        </div>
+
+        <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script>
+            $(() => {
+                const socket = io.connect('http://localhost:3000/');
+
+                // socket.on('yashil yolak', () => {
+                //     $('.yashil').html('salom yashil yolak ');
+                // });
+
+                socket.on('yashil yolak', (data) => {
+                    $('.yashil').append('salom ', data.city);
+                });
+
+                socket.on('sariq yolak', () => {
+                    $('.sariq').append('Salom sariq yolak, ');
+                });
+
+                $('button').on('click', () => {
+                    socket.emit('salom ber', { name: 'Kimdir', job: 'Nmadir' });
+                });
+
+                $('button').on('click', () => {
+                    socket.emit('new-user', { name: $('#name').val() })
+                })
+            });
+        </script>
+    </body>
+</html>
