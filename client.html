@@ -7,42 +7,86 @@
         <title>Document</title>
     </head>
     <body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-white">
+            <a class="navbar-brand">WebSocket</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse mr-5" style="right: 0 !important;" id="navbarSupportedContent">
+                <from class="form-inline">
+                    <input type="text" class="form-control mr-sm-2">
+                    <button class="btn btn-outline-success">Qidiruv</button>
+                </from>
+            </div>
+        </nav>
+        <div class="logs bg-primary text-white"></div>
         <div class="container">
             <span class="yashil"></span>
-            <button class="btn btn-primary m-5">Hello World</button>
+            <!-- <button class="btn btn-primary m-5">Hello World</button> -->
             <span class="sariq"> </span>
             <br>
-            <input type="text" id="name"/>
-            <button class="btn btn-success">Submit</button>
-        </div>
+            <!-- <input type="text" id="name"/>
+            <button id="button" class="btn btn-success">Submit</button> -->
 
-        <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+            <input type="text" id="roomName">
+            <button id="button" class="btn btn-success">Join</button>
+
+            <ul id="users" class="list-group">
+
+            </ul>
+        </div>
+        <div class="userName text-white bg-secondary"></div>
+        <div class="logs bg-primary text-white"></div>
+
+        <script src="http://localhost:8080/socket.io/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script>
             $(() => {
-                const socket = io.connect('http://localhost:3000/');
+                const socket = io.connect('http://localhost:8080/');
 
                 // socket.on('yashil yolak', () => {
                 //     $('.yashil').html('salom yashil yolak ');
                 // });
 
-                socket.on('yashil yolak', (data) => {
-                    $('.yashil').append('salom ', data.city);
-                });
+                // socket.on('yashil yolak', (data) => {
+                //     $('.yashil').append('salom ', data.city);
+                // });
 
-                socket.on('sariq yolak', () => {
-                    $('.sariq').append('Salom sariq yolak, ');
-                });
+                // socket.on('sariq yolak', () => {
+                //     $('.sariq').append('Salom sariq yolak, ');
+                // });
 
-                $('button').on('click', () => {
-                    socket.emit('salom ber', { name: 'Kimdir', job: 'Nmadir' });
-                });
+                // $('button').on('click', () => {
+                //     socket.emit('salom ber', { name: 'Kimdir', job: 'Nmadir' });
+                // });
 
-                $('button').on('click', () => {
-                    socket.emit('new-user', { name: $('#name').val() })
+                // socket.once('user', (data) => {
+                //     $('#users').append('<li class="list-group-item">'+ '<b>' + data.name + '</b>' + ' Bog\'landi</li>')
+                // })
+
+                // $('#button').on('click', () => {
+                //     $('#users').append('<li class="list-group-item bg-primary text-white">' + 'Bog\'landingiz')
+                //     socket.emit('new-user', { name: $('#name').val() })
+                // })
+
+                // $('#button').on('click', () => {
+                //     socket.emit('ism yoz')
+                // })
+
+                $('#button').on('click', () => {
+                    socket.emit('joinRoom', { name: $('#roomName').val() })
                 })
+
+                socket.on('newJoin', () => {
+                    // $('.logs').append('Xonaga kimdir kirdi')
+                    $('#users').append('<li class="list-group-item bg-primary text-white">Xonaga kimdir kirdi</li>')
+                })
+
+                // socket.on('hammaga jonat', (data) => {
+                //     $('.userName').append(`Salom ${ data.name } <br>`)
+                // })
             });
         </script>
     </body>
