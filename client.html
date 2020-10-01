@@ -3,48 +3,119 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
         <title>Document</title>
+        <style>
+            #leaveRoom{
+                display: none;
+            }
+        </style>
     </head>
     <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-white">
-            <a class="navbar-brand">WebSocket</a>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">WebSocket</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse mr-5" style="right: 0 !important;" id="navbarSupportedContent">
-                <from class="form-inline">
-                    <input type="text" class="form-control mr-sm-2">
-                    <button class="btn btn-outline-success">Qidiruv</button>
-                </from>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Link</a>
+                    </li>
+                </ul>
+                <form class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
             </div>
         </nav>
-        <div class="logs bg-primary text-white"></div>
         <div class="container">
-            <span class="yashil"></span>
+            <!-- <span class="yashil"></span> -->
             <!-- <button class="btn btn-primary m-5">Hello World</button> -->
-            <span class="sariq"> </span>
-            <br>
+            <!-- <span class="sariq"> </span> -->
+            <br />
             <!-- <input type="text" id="name"/>
             <button id="button" class="btn btn-success">Submit</button> -->
+            <div class="my-5">
+                <input id="roomName" type="text"/>
+                <button id="button" class="btn btn-success mx-4">Join</button>
+                <button id="leaveRoom" class="btn btn-danger text-white">Leave</button>
+            </div>
 
-            <input type="text" id="roomName">
-            <button id="button" class="btn btn-success">Join</button>
-
-            <ul id="users" class="list-group">
-
-            </ul>
+            <ul id="users" class="list-group"></ul>
+            <div class="userName text-white bg-secondary"></div>
+            <div class="logs bg-success text-white"></div>
+            <div id="userCount" class="bg-success text-white"></div>
+            <div class="reconnectionStatus bg-danger text-dark"></div>
         </div>
-        <div class="userName text-white bg-secondary"></div>
-        <div class="logs bg-primary text-white"></div>
 
-        <script src="http://localhost:8080/socket.io/socket.io.js"></script>
+        <script src="http://localhost:3000/socket.io/socket.io.js"></script>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script>
             $(() => {
-                const socket = io.connect('http://localhost:8080/');
+                const socket = io.connect('http://localhost:3000/', {
+                    reconnectionAttempts: 6,
+                    // reconnectionDelay: 100,
+                    // reconnection: false
+                });
+
+                socket.on('reconnect_attempt', () => {
+                    setTimeout(() => {
+                        $('.reconnectionStatus').html('Boshqatdan Bog\'lanish Harakat Qilinmoqda!!!')
+                    }, 2000);
+                })
+
+                socket.on('reconnect_error', () => {
+                    setTimeout(() => {
+                        $('.reconnectionStatus').html('Boshqatdan Bog\'lanish Muvaffaqiyatsiz Amalga Oshirildi!!!')
+                    }, 1000);
+                })
+
+                socket.on('reconnect', () => {
+                    $('.reconnectionStatus').html('Bog\'lanish Muvaffaqiyatli Amalga Oshirildi!!!')
+                })
+
+                $('#button').on('click', () => {
+                    socket.emit('joinRoom', { name: $('#roomName').val() });
+                });
+
+                $('#leaveRoom').on('click', () => {
+                    socket.emit('leaveRoom', { name: $('#roomName').val() });
+                });
+
+                socket.on('newJoin', (data) => {
+                    $('#userCount').html(`Bu xonada ${data.count} kishi bor`);
+                });
+
+                socket.on('leavedRoom', (data) => {
+                    $('#userCount').html(`Bu xonada ${data.count} kishi bor`)
+                })
+
+                socket.on('join', (data) => {
+                    $('.logs').empty()
+                    $('.logs').append(data.massage)
+                    $('#roomName, #button').attr('disabled', 'disabled')
+                    $('#leaveRoom').show()
+                })
+
+                socket.on('leaved room', (data) => {
+                    $('.logs').empty()
+                    $('.logs').append('<div class="bg-danger">' + data.massage + '</div>')
+                    $('#roomName, #button').removeAttr('disabled')
+                    $('#leaveRoom').hide()
+                    $('#userRoom').empty()
+                    $('#userCount').empty()
+                    $('#userCount').show()
+                })
+
+                // socket.on('newJoin', () => {
+                //     $('.logs').append('Xonaga kimdir kirdi');
+                // });
 
                 // socket.on('yashil yolak', () => {
                 //     $('.yashil').html('salom yashil yolak ');
@@ -74,15 +145,6 @@
                 // $('#button').on('click', () => {
                 //     socket.emit('ism yoz')
                 // })
-
-                $('#button').on('click', () => {
-                    socket.emit('joinRoom', { name: $('#roomName').val() })
-                })
-
-                socket.on('newJoin', () => {
-                    // $('.logs').append('Xonaga kimdir kirdi')
-                    $('#users').append('<li class="list-group-item bg-primary text-white">Xonaga kimdir kirdi</li>')
-                })
 
                 // socket.on('hammaga jonat', (data) => {
                 //     $('.userName').append(`Salom ${ data.name } <br>`)
